@@ -1,0 +1,56 @@
+# Node.js
+node_modules/
+
+# TypeScript
+*.tsbuildinfo
+*.tsbuildinfo.*
+
+# Output
+dist/
+
+# Environment variables
+.env
+
+# Editor-specific files
+.vscode/
+.idea/
+
+# Build tools
+.nyc_output/
+coverage/
+*.log
+*.seed
+*.pid
+*.map
+
+# Dependency directories
+.pnpm/
+.pnpm-debug.log
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Linux
+lost+found/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# User-specific files
+.DS_Store
+Thumbs.db
+*.db
+
+# Debug files
+debug.log
+debug/
+logs/
+*.log
+*.log.*
+*.log-*
