@@ -1,4 +1,4 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { createUserValidator } from "../validators/userValidators";
 import { validationResult } from "express-validator";
 import userService from "../services/userService";
