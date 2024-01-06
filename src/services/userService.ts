@@ -61,6 +61,27 @@ class UserService {
       }
     }
   }
+
+  async getUserByEmail(email: string): Promise<User> {
+    try {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: {
+          email: email,
+        },
+      });
+
+      return user;
+    } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.message);
+        if ((error.code = "P2025")) throw new Error("No User found");
+        throw new Error("Failed to find user due to database error.");
+      } else {
+        console.error("Generic Error:", error.message);
+        throw new Error("Failed to create user.");
+      }
+    }
+  }
 }
 
 export default new UserService();
