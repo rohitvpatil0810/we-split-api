@@ -19,7 +19,7 @@ class AuthMiddleware {
         return;
       }
 
-      const user: User | null = await jwtUtils.verfiyRefreshToken(token);
+      const user: User | null = await jwtUtils.verifyAccessToken(token);
       if (!user) throw Error("User not found");
       req.user = user;
 
