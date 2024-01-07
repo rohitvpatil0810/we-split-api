@@ -63,3 +63,9 @@ enum SettlementTypes {
   PAYMENT
   EXPENSE
 }
+
+model RevokedRefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  createdAt DateTime @default(now())
+}

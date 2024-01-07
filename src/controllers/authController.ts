@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { loginValidator } from "../validators/authValidators";
 import { validationResult } from "express-validator";
 import authService from "../services/authService";
+import { RevokedRefreshToken } from "@prisma/client";
 
 class AuthController {
   async login(req: Request, res: Response): Promise<void> {
@@ -63,6 +64,26 @@ class AuthController {
       } else {
         res.status(500).json({ error: "Internal Server Error" });
       }
+    }
+  }
+
+  async logout(req: Request, res: Response): Promise<void> {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        res.status(400).json({ error: "Refresh token is required" });
+        return;
+      }
+
+      await authService.logout(refreshToken);
+
+      res.status(200).json({
+        message: "Logout successful",
+      });
+    } catch (error: any) {
+      console.error("Error during logout:", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   }
 }

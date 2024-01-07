@@ -1,7 +1,8 @@
-import { User } from "@prisma/client";
+import { RevokedRefreshToken, User } from "@prisma/client";
 import jwtUtils from "../utils/jwtUtils";
 import passwordUtils from "../utils/passwordUtils";
 import userService from "./userService";
+import RevokedRefreshTokenService from "./RevokedRefreshTokenService";
 
 class AuthService {
   async login(
@@ -32,6 +33,13 @@ class AuthService {
     refreshToken: string
   ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
+      const isRevokedRefreshToken: RevokedRefreshToken | null =
+        await RevokedRefreshTokenService.getRevokedRefreshTokenById(
+          refreshToken
+        );
+
+      if (isRevokedRefreshToken) throw new Error("Invalid refresh token");
+
       const user = await jwtUtils.verfiyRefreshToken(refreshToken);
       if (!user) {
         throw new Error("Invalid refresh token");
@@ -42,7 +50,21 @@ class AuthService {
 
       return { accessToken, refreshToken: newRefreshToken };
     } catch (error: any) {
-      console.log("error while refreshing token:", error.message);
+      console.log("Error while refreshing token:", error.message);
+      throw new Error(error.message);
+    }
+  }
+
+  async logout(refreshToken: string): Promise<RevokedRefreshToken> {
+    try {
+      const revokedRefreshToken: RevokedRefreshToken =
+        await RevokedRefreshTokenService.createRevodkedRefreshTokens(
+          refreshToken
+        );
+
+      return revokedRefreshToken;
+    } catch (error: any) {
+      console.log("Error while logging out:", error.message);
       throw new Error(error.message);
     }
   }
