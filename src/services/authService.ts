@@ -34,7 +34,7 @@ class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const isRevokedRefreshToken: RevokedRefreshToken | null =
-        await RevokedRefreshTokenService.getRevokedRefreshTokenById(
+        await RevokedRefreshTokenService.getRevokedRefreshTokenByToken(
           refreshToken
         );
 

@@ -26,7 +26,7 @@ class RevokedRefreshTokenService {
     }
   }
 
-  async getRevokedRefreshTokenById(
+  async getRevokedRefreshTokenByToken(
     refreshToken: string
   ): Promise<RevokedRefreshToken | null> {
     try {
