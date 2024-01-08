@@ -78,6 +78,47 @@ class SettlementService {
       }
     }
   }
+
+  private calculateSettlmentsBetweentTwoUser() {}
+
+  async calcuateTotalSettlementAmountBetweenTwoUser(
+    user1Id: string,
+    user2Id: string
+  ) {
+    try {
+      const settlements = await prisma.settlement.findMany({
+        where: {
+          OR: [
+            { payeeId: user1Id },
+            { payeeId: user2Id },
+            { payerId: user1Id },
+            { payerId: user2Id },
+          ],
+        },
+        select: {
+          payeeId: true,
+          payerId: true,
+          amount: true,
+        },
+      });
+      let totalSettlmentAmount = settlements.reduce((total, settlement) => {
+        if (settlement.payeeId === user1Id) return total - settlement.amount;
+        else return (total += settlement.amount);
+      }, 0);
+
+      return totalSettlmentAmount;
+    } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.message);
+        throw new Error(
+          "Failed to calculate total settlement amount due to database error."
+        );
+      } else {
+        console.error("Generic Error:", error.message);
+        throw new Error("Failed to calculate total settlement amount.");
+      }
+    }
+  }
 }
 
 export default new SettlementService();
