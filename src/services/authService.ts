@@ -2,7 +2,7 @@ import { RevokedRefreshToken, User } from "@prisma/client";
 import jwtUtils from "../utils/jwtUtils";
 import passwordUtils from "../utils/passwordUtils";
 import userService from "./userService";
-import RevokedRefreshTokenService from "./RevokedRefreshTokenService";
+import RevokedRefreshTokenService from "./revokedRefreshTokenService";
 
 class AuthService {
   async login(
