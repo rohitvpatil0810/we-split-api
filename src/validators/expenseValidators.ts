@@ -3,7 +3,7 @@ import { body, ValidationChain } from "express-validator";
 const gteValidator = (value: number, threshold: number) => value >= threshold;
 
 export const createExpenseValidator: ValidationChain[] = [
-  body("amount").isFloat({ gt: 0 }).withMessage("Invalid amount"),
+  body("amount").isFloat({ gt: 0 }).withMessage("Invalid amount").toFloat(),
   body("description")
     .isLength({ min: 3 })
     .withMessage("Description must be at least 3 characters long"),
@@ -14,11 +14,13 @@ export const createExpenseValidator: ValidationChain[] = [
   body("users.*.share")
     .isFloat()
     .custom((value) => gteValidator(value, 0))
-    .withMessage("Invalid share amount"),
-  body("users.*.paidAmount")
+    .withMessage("Invalid share amount")
+    .toFloat(),
+  body("users.*.amountPaid")
     .isFloat()
     .custom((value) => gteValidator(value, 0))
-    .withMessage("Invalid paid Amount"),
+    .withMessage("Invalid paid Amount")
+    .toFloat(),
   body("users")
     .custom((users, { req }) => {
       const sumOfShares = users.reduce(
@@ -33,7 +35,7 @@ export const createExpenseValidator: ValidationChain[] = [
   body("users")
     .custom((users, { req }) => {
       const sumOfPaidAmounts = users.reduce(
-        (sum: any, user: any) => sum + parseFloat(user.paidAmount),
+        (sum: any, user: any) => sum + parseFloat(user.amountPaid),
         0
       );
       return sumOfPaidAmounts === parseFloat(req.body.amount);
