@@ -27,9 +27,9 @@ model Expense {
   amount        Float
   description   String
   createdByUser User                 @relation("createdBy", fields: [createdBy], references: [id])
-  updatedByUser User                 @relation("updatedBy", fields: [updatedBy], references: [id])
+  updatedByUser User?                @relation("updatedBy", fields: [updatedBy], references: [id])
   createdBy     String
-  updatedBy     String
+  updatedBy     String?
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   participants  ExpenseParticipant[] @relation("expenseId")
