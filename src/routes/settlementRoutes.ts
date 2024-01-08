@@ -8,8 +8,11 @@ settlementRouter.use(AuthMiddleware.authenticateUser);
 
 settlementRouter.get(
   "/calculate/:user2Id",
-  SettlementController.calculateTotalSettlementAmount
+  SettlementController.calculateTotalSettlementWithUser
 );
-// settlementRouter.get("/:user2Id", )
+settlementRouter.get(
+  "/:user2Id",
+  SettlementController.getAllSettlementsWithUser
+);
 
 export default settlementRouter;

@@ -79,7 +79,61 @@ class SettlementService {
     }
   }
 
-  private calculateSettlmentsBetweentTwoUser() {}
+  async getSettlmentsBetweentTwoUser(user1Id: string, user2Id: string) {
+    try {
+      let settlements = await prisma.settlement.findMany({
+        where: {
+          OR: [
+            { payeeId: user1Id },
+            { payeeId: user2Id },
+            { payerId: user1Id },
+            { payerId: user2Id },
+          ],
+        },
+        select: {
+          id: true,
+          payeeId: true,
+          payerId: true,
+          amount: true,
+          settlementType: true,
+          expense: {
+            select: {
+              id: true,
+              description: true,
+              updatedAt: true,
+              createdAt: true,
+              createdByUser: {
+                select: {
+                  username: true,
+                },
+              },
+              updatedByUser: {
+                select: {
+                  username: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      settlements = settlements.map((settlement) => {
+        if (settlement.payeeId === user1Id)
+          settlement.amount = -1 * settlement.amount;
+        return settlement;
+      });
+
+      return settlements;
+    } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.message);
+        throw new Error("Failed to get settlements due to database error.");
+      } else {
+        console.error("Generic Error:", error.message);
+        throw new Error("Failed to get settlements amount.");
+      }
+    }
+  }
 
   async calcuateTotalSettlementAmountBetweenTwoUser(
     user1Id: string,
