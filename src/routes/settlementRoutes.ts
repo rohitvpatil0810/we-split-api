@@ -14,5 +14,6 @@ settlementRouter.get(
   "/:user2Id",
   SettlementController.getAllSettlementsWithUser
 );
+settlementRouter.post("/payment", SettlementController.addPayment);
 
 export default settlementRouter;

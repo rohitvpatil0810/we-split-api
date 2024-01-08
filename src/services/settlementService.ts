@@ -173,6 +173,35 @@ class SettlementService {
       }
     }
   }
+
+  async createPaymentSettlement(
+    payerId: string,
+    payeeId: string,
+    amount: number
+  ) {
+    try {
+      const paymentSettlement = await prisma.settlement.create({
+        data: {
+          payerId,
+          payeeId,
+          amount,
+          settlementType: SettlementTypes.PAYMENT,
+        },
+      });
+
+      return paymentSettlement;
+    } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.message);
+        throw new Error(
+          "Failed to creaate payement settlement due to database error."
+        );
+      } else {
+        console.error("Generic Error:", error.message);
+        throw new Error("Failed to create payment settlement.");
+      }
+    }
+  }
 }
 
 export default new SettlementService();
