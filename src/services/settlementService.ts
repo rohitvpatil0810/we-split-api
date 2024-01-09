@@ -96,6 +96,7 @@ class SettlementService {
           payerId: true,
           amount: true,
           settlementType: true,
+          deletedAt: true,
           expense: {
             select: {
               id: true,
@@ -148,6 +149,7 @@ class SettlementService {
             { payerId: user1Id },
             { payerId: user2Id },
           ],
+          deletedAt: null,
         },
         select: {
           payeeId: true,

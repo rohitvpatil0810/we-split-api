@@ -17,6 +17,7 @@ class ExpenseParticipantService {
       const userExpenses = await prisma.expenseParticipant.findMany({
         where: {
           userId,
+          deletedAt: null,
         },
         select: {
           id: true,
