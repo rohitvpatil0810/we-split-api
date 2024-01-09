@@ -7,5 +7,6 @@ expenseRouter.use(AuthMiddleware.authenticateUser);
 expenseRouter.get("/user", ExpenseController.getUserExpenses);
 expenseRouter.post("/create", ExpenseController.createExpense);
 expenseRouter.delete("/:id", ExpenseController.deleteExpense);
+expenseRouter.patch("/:id", ExpenseController.updateExpense);
 
 export default expenseRouter;

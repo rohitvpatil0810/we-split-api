@@ -23,7 +23,6 @@ class ExpenseService {
           isDeleted: false,
         },
       });
-
       if (expense) return true;
       return false;
     } catch (error: any) {
