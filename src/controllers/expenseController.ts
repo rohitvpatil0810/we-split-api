@@ -63,6 +63,31 @@ class ExpenseController {
       });
     }
   }
+
+  async deleteExpense(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const expenseId = req.params.id;
+      if (!expenseId) {
+        res.status(400).json({
+          error: "Expense id is required",
+        });
+      }
+      if (req.user) {
+        const deletedExpense = await ExpenseManagementService.deleteExpense(
+          expenseId,
+          req.user?.id
+        );
+        res.status(200).json({
+          deletedExpense,
+        });
+      }
+    } catch (error: any) {
+      console.log("Error getting user expenses:", error.message);
+      res.status(500).json({
+        error: error.message,
+      });
+    }
+  }
 }
 
 export default new ExpenseController();

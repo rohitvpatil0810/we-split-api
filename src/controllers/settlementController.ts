@@ -91,7 +91,8 @@ class SettlementController {
         const payement = await SettlementService.createPaymentSettlement(
           payerId,
           payeeId,
-          amount
+          amount,
+          payerId
         );
         res.status(200).json({
           payement,
@@ -125,7 +126,8 @@ class SettlementController {
         const receive = await SettlementService.createPaymentSettlement(
           payerId,
           payeeId,
-          amount
+          amount,
+          payeeId
         );
         res.status(200).json({
           receive,

@@ -17,13 +17,15 @@ class ExpenseParticipantService {
       const userExpenses = await prisma.expenseParticipant.findMany({
         where: {
           userId,
-          deletedAt: null,
+          isDeleted: false,
         },
         select: {
           id: true,
           share: true,
           expense: {
-            include: {
+            select: {
+              createdAt: true,
+              updatedAt: true,
               createdByUser: {
                 select: {
                   username: true,
@@ -47,6 +49,29 @@ class ExpenseParticipantService {
       } else {
         console.error("Generic Error:", error.message);
         throw new Error("Failed to get user expenses.");
+      }
+    }
+  }
+
+  async isUserInExpense(expenseId: string, userId: string): Promise<boolean> {
+    try {
+      const expenseParticipant = await prisma.expenseParticipant.findFirst({
+        where: {
+          expenseId,
+          userId,
+        },
+      });
+      if (expenseParticipant) return true;
+      return false;
+    } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.message);
+        throw new Error(
+          "Failed to check is user in expense due to database error."
+        );
+      } else {
+        console.error("Generic Error:", error.message);
+        throw new Error("Failed to check is user in expense.");
       }
     }
   }

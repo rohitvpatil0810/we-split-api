@@ -31,7 +31,8 @@ class ExpenseManagementService {
         });
 
         const settlementsInput = SettlementService.createSettlementsInput(
-          expenseParticipantsInput
+          expenseParticipantsInput,
+          userId
         );
         const settlements = await tx.settlement.createMany({
           data: settlementsInput,
@@ -43,6 +44,59 @@ class ExpenseManagementService {
     } catch (error: any) {
       console.log("Failed to add Expense:", error.message);
       throw new Error("Failed to add Expense.");
+    }
+  }
+
+  async deleteExpense(expenseId: string, deletingUserId: string) {
+    try {
+      const isExpensePresent = await ExpenseService.isExpensePresent(expenseId);
+      if (!isExpensePresent) {
+        throw Error("Expesne is not present.");
+      }
+      const isParticipant = await ExpenseParticipantService.isUserInExpense(
+        expenseId,
+        deletingUserId
+      );
+      if (!isParticipant) {
+        throw Error("User is not allowed to delete expense");
+      }
+      const expense = await prisma.$transaction(async (tx) => {
+        const deletedExpense = await tx.expense.update({
+          where: {
+            id: expenseId,
+          },
+          data: {
+            isDeleted: true,
+            updatedBy: deletingUserId,
+          },
+        });
+
+        const deletedExpenseParticipants =
+          await tx.expenseParticipant.updateMany({
+            where: {
+              expenseId,
+            },
+            data: {
+              isDeleted: true,
+            },
+          });
+
+        const deletedSettlements = await tx.settlement.updateMany({
+          where: {
+            relatedExpenseId: expenseId,
+          },
+          data: {
+            isDeleted: true,
+            updatedBy: deletingUserId,
+          },
+        });
+        return deletedExpense;
+      });
+
+      return expense;
+    } catch (error: any) {
+      console.log("Failed to delete Expense:", error.message);
+      throw new Error(`Failed to delete Expense:  ${error.message}`);
     }
   }
 }

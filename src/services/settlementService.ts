@@ -26,7 +26,8 @@ class SettlementService {
   }
 
   private calculateSettlements(
-    expenseParticipants: Prisma.ExpenseParticipantCreateManyInput[]
+    expenseParticipants: Prisma.ExpenseParticipantCreateManyInput[],
+    userId: string
   ) {
     /*
       Logic is like 
@@ -50,6 +51,7 @@ class SettlementService {
         payeeId: currentPayer.userId,
         payerId: currentPayee.userId,
         settlementType: SettlementTypes.EXPENSE,
+        createdBy: userId,
       });
       currentPayee.balance -= minAmount;
       currentPayer.balance -= minAmount;
@@ -62,10 +64,14 @@ class SettlementService {
   }
 
   createSettlementsInput(
-    expenseParticipants: Prisma.ExpenseParticipantCreateManyInput[]
+    expenseParticipants: Prisma.ExpenseParticipantCreateManyInput[],
+    userId: string
   ) {
     try {
-      const settlementInput = this.calculateSettlements(expenseParticipants);
+      const settlementInput = this.calculateSettlements(
+        expenseParticipants,
+        userId
+      );
 
       return settlementInput;
     } catch (error: any) {
@@ -96,23 +102,19 @@ class SettlementService {
           payerId: true,
           amount: true,
           settlementType: true,
-          deletedAt: true,
+          isDeleted: true,
+          createdAt: true,
+          updatedAt: true,
+          createdByUser: { select: { id: true, username: true } },
+          updatedByUser: { select: { id: true, username: true } },
           expense: {
             select: {
               id: true,
               description: true,
               updatedAt: true,
               createdAt: true,
-              createdByUser: {
-                select: {
-                  username: true,
-                },
-              },
-              updatedByUser: {
-                select: {
-                  username: true,
-                },
-              },
+              createdByUser: { select: { id: true, username: true } },
+              updatedByUser: { select: { id: true, username: true } },
             },
           },
         },
@@ -149,7 +151,7 @@ class SettlementService {
             { payerId: user1Id },
             { payerId: user2Id },
           ],
-          deletedAt: null,
+          isDeleted: false,
         },
         select: {
           payeeId: true,
@@ -179,7 +181,8 @@ class SettlementService {
   async createPaymentSettlement(
     payerId: string,
     payeeId: string,
-    amount: number
+    amount: number,
+    userId: string
   ) {
     try {
       const paymentSettlement = await prisma.settlement.create({
@@ -188,6 +191,7 @@ class SettlementService {
           payeeId,
           amount,
           settlementType: SettlementTypes.PAYMENT,
+          createdBy: userId,
         },
       });
 

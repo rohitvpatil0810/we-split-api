@@ -6,5 +6,6 @@ const expenseRouter = Router();
 expenseRouter.use(AuthMiddleware.authenticateUser);
 expenseRouter.get("/user", ExpenseController.getUserExpenses);
 expenseRouter.post("/create", ExpenseController.createExpense);
+expenseRouter.delete("/:id", ExpenseController.deleteExpense);
 
 export default expenseRouter;
