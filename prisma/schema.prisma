@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String               @id @unique @default(uuid())
+  username          String               @unique
+  email             String               @unique
+  password          String
+  creator           Expense[]            @relation("createdBy")
+  updator           Expense[]            @relation("updatedBy")
+  participantIn     ExpenseParticipant[] @relation("userId")
+  payer             Settlement[]         @relation("payer")
+  payee             Settlement[]         @relation("payee")
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  isDeleted         Boolean              @default(false)
+  settlementCreator Settlement[]         @relation("createdBy")
+  settlementUpdator Settlement[]         @relation("updatedBy")
+}
+
+model Expense {
+  id            String               @id @unique @default(uuid())
+  amount        Float
+  description   String
+  createdByUser User                 @relation("createdBy", fields: [createdBy], references: [id])
+  updatedByUser User?                @relation("updatedBy", fields: [updatedBy], references: [id])
+  createdBy     String
+  updatedBy     String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  participants  ExpenseParticipant[] @relation("expenseId")
+  settlements   Settlement[]         @relation("relatedExpenseId")
+  isDeleted     Boolean              @default(false)
+  version       Int                  @default(0)
+}
+
+model ExpenseParticipant {
+  id         String  @id @unique @default(uuid())
+  expense    Expense @relation("expenseId", fields: [expenseId], references: [id])
+  expenseId  String
+  user       User    @relation("userId", fields: [userId], references: [id])
+  userId     String
+  share      Float
+  amountPaid Float
+  isDeleted  Boolean @default(false)
+}
+
+model Settlement {
+  id               String          @id @unique @default(uuid())
+  relatedExpenseId String?
+  expense          Expense?        @relation("relatedExpenseId", fields: [relatedExpenseId], references: [id])
+  payerId          String
+  payer            User            @relation("payer", fields: [payerId], references: [id])
+  payeeId          String
+  payee            User            @relation("payee", fields: [payeeId], references: [id])
+  amount           Float
+  settlementType   SettlementTypes
+  createdByUser    User            @relation("createdBy", fields: [createdBy], references: [id])
+  updatedByUser    User?           @relation("updatedBy", fields: [updatedBy], references: [id])
+  createdBy        String
+  updatedBy        String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  isDeleted        Boolean         @default(false)
+  version          Int             @default(0)
+}
+
+enum SettlementTypes {
+  PAYMENT
+  EXPENSE
+}
+
+model RevokedRefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  createdAt DateTime @default(now())
+}
