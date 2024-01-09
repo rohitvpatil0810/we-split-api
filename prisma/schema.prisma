@@ -20,6 +20,7 @@ model User {
   participantIn ExpenseParticipant[] @relation("userId")
   payer         Settlement[]         @relation("payer")
   payee         Settlement[]         @relation("payee")
+  deletedAt     DateTime?
 }
 
 model Expense {
@@ -34,16 +35,18 @@ model Expense {
   updatedAt     DateTime             @updatedAt
   participants  ExpenseParticipant[] @relation("expenseId")
   settlements   Settlement[]         @relation("relatedExpenseId")
+  deletedAt     DateTime?
 }
 
 model ExpenseParticipant {
-  id         String  @id @unique @default(uuid())
-  expense    Expense @relation("expenseId", fields: [expenseId], references: [id])
+  id         String    @id @unique @default(uuid())
+  expense    Expense   @relation("expenseId", fields: [expenseId], references: [id])
   expenseId  String
-  user       User    @relation("userId", fields: [userId], references: [id])
+  user       User      @relation("userId", fields: [userId], references: [id])
   userId     String
   share      Float
   amountPaid Float
+  deletedAt  DateTime?
 }
 
 model Settlement {
@@ -57,6 +60,7 @@ model Settlement {
   amount           Float
   settlementType   SettlementTypes
   createdAt        DateTime        @default(now())
+  deletedAt        DateTime?
 }
 
 enum SettlementTypes {
