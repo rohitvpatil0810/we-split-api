@@ -105,6 +105,7 @@ class SettlementService {
           isDeleted: true,
           createdAt: true,
           updatedAt: true,
+          version: true,
           createdByUser: { select: { id: true, username: true } },
           updatedByUser: { select: { id: true, username: true } },
           expense: {
@@ -257,8 +258,58 @@ class SettlementService {
 
       return deletedPayementSettlement;
     } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.message);
+        throw new Error("Failed to delete payment due to database error.");
+      }
       console.log("Failed to delete payement:", error.message);
       throw new Error(`Failed to delete payment:  ${error.message}`);
+    }
+  }
+
+  async updatePaymentSettlement(
+    settlementId: string,
+    amount: number,
+    version: number,
+    updatingUserId: string
+  ) {
+    try {
+      const isSettlementPresent = await this.isUserInSettlement(
+        settlementId,
+        updatingUserId
+      );
+
+      if (!isSettlementPresent)
+        throw new Error("User is not allowed to update payment");
+
+      const updatedPayementSettlement = await prisma.settlement.update({
+        where: { id: settlementId, version },
+        data: {
+          amount,
+          version: version + 1,
+          updatedBy: updatingUserId,
+        },
+      });
+
+      if (!updatedPayementSettlement)
+        throw new Error(
+          "The payment has been updated by another user. Please refresh and try again."
+        );
+
+      return updatedPayementSettlement;
+    } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.code);
+        if (error.code == "P2025") {
+          throw new Error(
+            "The payment has been updated by another user. Please refresh and try again."
+          );
+        }
+        throw new Error("Failed to update payment due to database error.");
+      }
+
+      if (error) console.log("Failed to update payement:", error.message);
+      throw new Error(`Failed to update payment:  ${error.message}`);
     }
   }
 }

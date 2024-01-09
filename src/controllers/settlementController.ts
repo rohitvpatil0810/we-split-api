@@ -4,6 +4,7 @@ import SettlementService from "../services/settlementService";
 import {
   addPayementValidator,
   addReceiveValidator,
+  updatePaymentValidator,
 } from "../validators/settlementValidators";
 import { validationResult } from "express-validator";
 
@@ -141,10 +142,7 @@ class SettlementController {
     }
   }
 
-  async deletePayement(
-    req: AuthenticatedRequest,
-    res: Response
-  ): Promise<void> {
+  async deletePayment(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const settlementId = req.params.id;
       if (!settlementId) {
@@ -165,6 +163,43 @@ class SettlementController {
       }
     } catch (error: any) {
       console.log("Error deleting payment:", error.message);
+      res.status(500).json({
+        error: error.message,
+      });
+    }
+  }
+
+  async updatePayment(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      await Promise.all(
+        updatePaymentValidator.map((validator) => validator.run(req))
+      );
+
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          errors: errors.array(),
+        });
+        return;
+      }
+
+      const settlementId = req.params.id;
+      const { amount, version } = req.body;
+      if (req.user) {
+        const updatedPayment = await SettlementService.updatePaymentSettlement(
+          settlementId,
+          amount,
+          version,
+          req.user.id
+        );
+
+        res.status(200).json({
+          updatedPayment,
+        });
+      }
+    } catch (error: any) {
+      console.log("Error updating payment:", error.message);
       res.status(500).json({
         error: error.message,
       });

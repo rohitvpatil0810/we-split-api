@@ -16,6 +16,7 @@ settlementRouter.get(
 );
 settlementRouter.post("/payment", SettlementController.addPayment);
 settlementRouter.post("/receive", SettlementController.addReceive);
-settlementRouter.delete("/:id", SettlementController.deletePayement);
+settlementRouter.delete("/:id", SettlementController.deletePayment);
+settlementRouter.patch("/:id", SettlementController.updatePayment);
 
 export default settlementRouter;
