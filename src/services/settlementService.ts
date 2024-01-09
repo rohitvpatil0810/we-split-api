@@ -208,6 +208,59 @@ class SettlementService {
       }
     }
   }
+
+  private async isUserInSettlement(
+    id: string,
+    userId: string
+  ): Promise<boolean> {
+    try {
+      const settlement = await prisma.settlement.findFirst({
+        where: {
+          id,
+          OR: [{ payeeId: userId }, { payerId: userId }],
+          isDeleted: false,
+          settlementType: SettlementTypes.PAYMENT,
+        },
+      });
+      if (settlement) return true;
+      return false;
+    } catch (error: any) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error("Prisma Error:", error.message);
+        throw new Error(
+          "Failed to check is user in settlement due to database error."
+        );
+      } else {
+        console.error("Generic Error:", error.message);
+        throw new Error("Failed to check is user in settlement.");
+      }
+    }
+  }
+
+  async deletePaymentSettlement(settlementId: string, deletingUserId: string) {
+    try {
+      const isSettlementPresent = await this.isUserInSettlement(
+        settlementId,
+        deletingUserId
+      );
+
+      if (!isSettlementPresent)
+        throw new Error("User is not allowed to delete payment");
+
+      const deletedPayementSettlement = await prisma.settlement.update({
+        where: { id: settlementId },
+        data: {
+          isDeleted: true,
+          updatedBy: deletingUserId,
+        },
+      });
+
+      return deletedPayementSettlement;
+    } catch (error: any) {
+      console.log("Failed to delete payement:", error.message);
+      throw new Error(`Failed to delete payment:  ${error.message}`);
+    }
+  }
 }
 
 export default new SettlementService();

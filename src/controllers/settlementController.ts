@@ -140,6 +140,36 @@ class SettlementController {
       });
     }
   }
+
+  async deletePayement(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
+    try {
+      const settlementId = req.params.id;
+      if (!settlementId) {
+        res.status(400).json({
+          error: "Settlement id is required",
+        });
+        return;
+      }
+      if (req.user) {
+        const deletedPayment = await SettlementService.deletePaymentSettlement(
+          settlementId,
+          req.user.id
+        );
+
+        res.status(200).json({
+          deletedPayment,
+        });
+      }
+    } catch (error: any) {
+      console.log("Error deleting payment:", error.message);
+      res.status(500).json({
+        error: error.message,
+      });
+    }
+  }
 }
 
 export default new SettlementController();
