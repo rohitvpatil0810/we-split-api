@@ -71,6 +71,7 @@ class ExpenseController {
         res.status(400).json({
           error: "Expense id is required",
         });
+        return;
       }
       if (req.user) {
         const deletedExpense = await ExpenseManagementService.deleteExpense(
