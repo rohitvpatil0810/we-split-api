@@ -82,7 +82,7 @@ class ExpenseController {
         });
       }
     } catch (error: any) {
-      console.log("Error getting user expenses:", error.message);
+      console.log("Error deleting expense:", error.message);
       res.status(500).json({
         error: error.message,
       });
