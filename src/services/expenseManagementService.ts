@@ -69,6 +69,7 @@ class ExpenseManagementService {
         const deletedExpense = await tx.expense.update({
           where: {
             id: expenseId,
+            isDeleted: false,
           },
           data: {
             isDeleted: true,

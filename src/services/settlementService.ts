@@ -249,7 +249,7 @@ class SettlementService {
         throw new Error("User is not allowed to delete payment");
 
       const deletedPayementSettlement = await prisma.settlement.update({
-        where: { id: settlementId },
+        where: { id: settlementId, isDeleted: false },
         data: {
           isDeleted: true,
           updatedBy: deletingUserId,
