@@ -3,7 +3,6 @@ import jwtUtils from "../utils/jwtUtils";
 import passwordUtils from "../utils/passwordUtils";
 import userService from "./userService";
 import RevokedRefreshTokenService from "./revokedRefreshTokenService";
-
 class AuthService {
   async login(
     email: string,
