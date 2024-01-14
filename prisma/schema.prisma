@@ -25,6 +25,9 @@ model User {
   isDeleted         Boolean              @default(false)
   settlementCreator Settlement[]         @relation("createdBy")
   settlementUpdator Settlement[]         @relation("updatedBy")
+  groups            GroupMember[]
+  groupCreator      Group[]              @relation("createdBy")
+  groupUpdator      Group[]              @relation("updatedBy")
 }
 
 model Expense {
@@ -35,6 +38,8 @@ model Expense {
   updatedByUser User?                @relation("updatedBy", fields: [updatedBy], references: [id])
   createdBy     String
   updatedBy     String?
+  group         Group?               @relation("groupExpenses", fields: [groupId], references: [id])
+  groupId       String?
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   participants  ExpenseParticipant[] @relation("expenseId")
@@ -83,4 +88,32 @@ model RevokedRefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique
   createdAt DateTime @default(now())
+}
+
+model Group {
+  id            String        @id @unique @default(uuid())
+  name          String
+  groupMembers  GroupMember[]
+  expenses      Expense[]     @relation("groupExpenses")
+  createdByUser User          @relation("createdBy", fields: [createdBy], references: [id])
+  updateByUser  User?         @relation("updatedBy", fields: [updatedBy], references: [id])
+  createdBy     String
+  updatedBy     String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  isDeleted     Boolean       @default(false)
+  version       Int           @default(0)
+}
+
+model GroupMember {
+  id        String   @id @unique @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  group     Group    @relation(fields: [groupId], references: [id])
+  groupId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
+
+  @@unique([groupId, userId], name: "groupMemberIdentifier")
 }
