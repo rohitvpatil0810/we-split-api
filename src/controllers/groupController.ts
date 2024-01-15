@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from "../types/types";
 import { createGroupValidator } from "../validators/groupValidators";
 import { validationResult } from "express-validator";
 import GroupManagementService from "../services/groupManagementService";
+import groupService from "../services/groupService";
 
 class GroupController {
   async createGroup(req: AuthenticatedRequest, res: Response): Promise<void> {
@@ -32,6 +33,21 @@ class GroupController {
       }
     } catch (error: any) {
       console.log("Error while creating group:", error.message);
+      res.status(500).json({
+        error: "Internal Server Error",
+      });
+    }
+  }
+
+  async getGroup(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const groupId = req.params.groupId; // this has been validatated at Group Authorization middleware
+      const group = await groupService.getGroupByGroupId(groupId);
+      res.status(200).json({
+        group,
+      });
+    } catch (error: any) {
+      console.log("Error while getting group:", error.message);
       res.status(500).json({
         error: "Internal Server Error",
       });
