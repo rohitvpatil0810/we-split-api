@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { GroupMemberTypes, Prisma } from "@prisma/client";
 
 class GroupMemberService {
   createGroupMembersInput(
@@ -13,6 +13,7 @@ class GroupMemberService {
     members.push({
       groupId,
       userId,
+      role: GroupMemberTypes.ADMIN,
     });
     return members;
   }
